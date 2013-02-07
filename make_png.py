@@ -4,7 +4,46 @@
 import Image
 import sys
 import itertools
-from palette import *
+import colorsys
+
+
+############## Palette definitions  ###################
+
+def rainbow(startColor, endColor, nSteps):
+    """ Uses the HSV colorspace to generate a rainbow of nSteps
+        different colors, starting at color startColor and ending
+        at maxColor. """
+
+    assert(startColor >= 0 and startColor < 360)
+    assert(endColor >= 0 and endColor <= 360)
+    assert(startColor < endColor)
+    step = float(endColor - startColor) / nSteps
+
+    colors = [colorsys.hsv_to_rgb(startColor + n*step, 1.0, 1.0) for n in range(nSteps)]
+    # Must convert RGB values to int
+    colors = [(int(R*255), int(G*255), int(B*255)) for (R, G, B) in colors]
+
+    return colors
+
+
+def monochrome(color, sat, startLight, endLight, nSteps):
+
+    colors = [(0, 0, 0) for n in range(nSteps)]
+    step = (startLight - endLight) / nSteps
+    for i in range(nSteps-1):
+        colors[i] = colorsys.hls_to_rgb(color, i * step, sat)
+
+    # Black as the color for the inside of the mandelbrot set
+    colors[nSteps-1] = (0, 0, 0)
+    # Must convert RGB values to int
+    colors = [(int(R*255), int(G*255), int(B*255)) for (R, G, B) in colors]
+    return colors
+
+
+
+
+
+########### Actual transformation of the image ###############
 
 
 def read_file(filename):
@@ -42,7 +81,7 @@ if __name__ == "__main__":
     width, height, image = read_file(in_file_name)
     all_pixels = itertools.chain(*image)
     palette_size = max(all_pixels) + 1 # starts from 0 !
-    print("palette size: %d" % palette_size)
+    palette = monochrome(1.0, 1.0, 1.0, 0.2, palette_size)
 
-    rgb_image = to_rgb(width, height, image, rainbow(0, 360, palette_size))
+    rgb_image = to_rgb(width, height, image, palette)
     rgb_image.save(out_file_name)
