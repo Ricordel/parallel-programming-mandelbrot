@@ -36,4 +36,10 @@
 #define check_null(A) check((A), "Got null pointer for %s\n", #A)
 
 #define check_debug(A, ...) if (!(A)) { debug(__VA_ARGS__); errno=0; goto error; }
+
+#define die(...) fprintf(stderr, "FATAL: ");\
+                 fprintf(stderr, __VA_ARGS__);\
+                 abort();
+
+                
 #endif

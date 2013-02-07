@@ -1,0 +1,8 @@
+.clang_complete
+.project
+.ropeproject
+.cproject
+*.img
+*.png
+bin/*
+mandelbrot_serial
