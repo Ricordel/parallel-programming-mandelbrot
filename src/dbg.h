@@ -39,6 +39,7 @@
 
 #define die(...) fprintf(stderr, "FATAL: ");\
                  fprintf(stderr, __VA_ARGS__);\
+                 fprintf(stderr, "\n");\
                  abort();
 
                 

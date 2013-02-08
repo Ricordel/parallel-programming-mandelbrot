@@ -49,6 +49,7 @@ typedef double complex (mandelbrot_function_t(double complex z_n, double complex
 color_t pixel_color(double complex point, double threshold, uint32_t maxIter,
                     mandelbrot_function_t func)
 {
+        debug("maxIter: %u\n", maxIter);
         double complex z = 0;
         color_t color;
         for (color = 0; color < maxIter && cabs(z) < threshold; color++) {
@@ -80,25 +81,6 @@ int compute_window(color_t **image, double startX, double startY, double stepX,
 
 
 
-#if 0
-int compute_image(color_t **image, uint32_t width, uint32_t height,
-                   double threshold, uint32_t maxIter, mandelbrot_function_t func)
-{
-        double stepX = (2 * threshold) / (double)(width - 1);
-        double stepY = (2 * threshold) / (double)(height - 1);
-
-        for (uint32_t x = 0; x < width; x++) {
-                double z_real = x * stepX - threshold;
-                for (uint32_t y = 0; y < height; y++) {
-                        double z_imag = y * stepY - threshold;
-                        double complex z = z_real + z_imag * I;
-                        image[x][y] = pixel_color(z, threshold, maxIter, func);
-                }
-        }
-
-        return 0;
-}
-#endif
 
 
 
@@ -129,6 +111,7 @@ int save_image(color_t **image, uint32_t width, uint32_t height, FILE *outFile)
 
 double complex mandelbrot_function(double complex z_n, double complex point)
 {
+        debug("Enter mandelbrot function");
         return z_n * z_n + point;
 }
 
@@ -228,6 +211,10 @@ int parse_options(struct options *pProgOptions, int argc, char **argv)
                 pProgOptions->startY = -pProgOptions->threshold;
                 pProgOptions->endX   = pProgOptions->threshold;
                 pProgOptions->endY   = pProgOptions->threshold;
+        }
+
+        if (pProgOptions->maxIter > 255) {
+                die("The number of iterations cannot be more than 255");
         }
 
         debug("Command-line args: threshold: %lf, width: %u, height: %u, "

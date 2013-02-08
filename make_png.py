@@ -5,39 +5,59 @@ import Image
 import sys
 import itertools
 import colorsys
+import joblib
 
 
 ############## Palette definitions  ###################
 
-def rainbow(startColor, endColor, nSteps):
+
+def rainbow_palette(nSteps, (startHue, startSat, startVal), (endHue, endSat, endVal), reverse=False):
     """ Uses the HSV colorspace to generate a rainbow of nSteps
         different colors, starting at color startColor and ending
         at maxColor. """
 
-    assert(startColor >= 0 and startColor < 360)
-    assert(endColor >= 0 and endColor <= 360)
-    assert(startColor < endColor)
-    step = float(endColor - startColor) / nSteps
+    hueStep = (endHue - startHue) / nSteps
+    satStep = (endSat - startSat) / nSteps
+    valStep = (endVal - startVal) / nSteps
 
-    colors = [colorsys.hsv_to_rgb(startColor + n*step, 1.0, 1.0) for n in range(nSteps)]
-    # Must convert RGB values to int
+    colors = [ colorsys.hsv_to_rgb(startHue + n * hueStep,
+                                   startSat + n * satStep,
+                                   startVal + n * valStep) for n in range(nSteps) ]
+
+    # Must convert RGB values to int in 0..255 for the Image module
     colors = [(int(R*255), int(G*255), int(B*255)) for (R, G, B) in colors]
+    if reverse:
+        colors.reverse()
+    # Black as the color for the inside of the mandelbrot set
+    colors[nSteps-1] = (0, 0, 0)
 
     return colors
 
 
-def monochrome(color, sat, startLight, endLight, nSteps):
+def gradient_palette(nSteps, (startR, startG, startB), (endR, endG, endB)):
+    def normalize(c):
+        return float(c) / 255
 
-    colors = [(0, 0, 0) for n in range(nSteps)]
-    step = (startLight - endLight) / nSteps
-    for i in range(nSteps-1):
-        colors[i] = colorsys.hls_to_rgb(color, i * step, sat)
+    startR = normalize(startR)
+    startG = normalize(startG)
+    startB = normalize(startB)
+    endR = normalize(endR)
+    endG = normalize(endG)
+    endB = normalize(endB)
+
+    stepR = (endR - startR) / nSteps
+    stepG = (endG - startG) / nSteps
+    stepB = (endB - startB) / nSteps
+
+    colors = [ (startR + n * stepR, startG + n * stepG, startB + n * stepB)
+               for n in range(nSteps) ]
 
     # Black as the color for the inside of the mandelbrot set
     colors[nSteps-1] = (0, 0, 0)
     # Must convert RGB values to int
     colors = [(int(R*255), int(G*255), int(B*255)) for (R, G, B) in colors]
     return colors
+
 
 
 
@@ -62,11 +82,18 @@ def to_rgb(width, height, image, palette):
     out_image = Image.new("RGB", (width, height))
     for x in range(width):
         for y in range(height):
-            color = image[y][x] # we consider x on the horizontal direction
+            color = image[y][x] 
             out_image.putpixel((x, y), palette[color])
 
     return out_image
 
+
+
+### Some nice palettes:
+    #palette = rainbow_palette(palette_size, (0.5, 0.0, 1.0), (0.8, 1.0, 1.0), reverse=True)
+    #palette = gradient_palette(palette_size, (0, 181, 255), (255, 0, 82))
+    #palette = rainbow_palette(palette_size, (15./360, 1.0, 1.0), (15./360, 0, 0.7))
+    #palette = rainbow_palette(palette_size, (0, 1.0, 0.0), (0, 1.0, 1.0))
 
 
 
@@ -81,7 +108,7 @@ if __name__ == "__main__":
     width, height, image = read_file(in_file_name)
     all_pixels = itertools.chain(*image)
     palette_size = max(all_pixels) + 1 # starts from 0 !
-    palette = monochrome(1.0, 1.0, 1.0, 0.2, palette_size)
+    palette = rainbow_palette(palette_size, (0, 1.0, 0.0), (0, 0.8, 1.0))
 
     rgb_image = to_rgb(width, height, image, palette)
     rgb_image.save(out_file_name)
