@@ -59,7 +59,27 @@ color_t pixel_color(double complex point, double threshold, uint32_t maxIter,
 
 
 
+int compute_window(color_t **image, double startX, double startY, double stepX,
+                   double stepY, uint32_t width, uint32_t height, double threshold,
+                   uint32_t maxIter, mandelbrot_function_t func)
+        
+{
+        for (uint32_t x = 0; x < width; x++) {
+                double z_real = x * stepX + startX;
+                for (uint32_t y = 0; y < height; y++) {
+                        double z_imag = y * stepY + startY;
+                        double complex z = z_real + z_imag * I;
+                        image[x][y] = pixel_color(z, threshold, maxIter, func);
+                }
+        }
 
+        return 0;
+}
+
+
+
+
+#if 0
 int compute_image(color_t **image, uint32_t width, uint32_t height,
                    double threshold, uint32_t maxIter, mandelbrot_function_t func)
 {
@@ -77,6 +97,7 @@ int compute_image(color_t **image, uint32_t width, uint32_t height,
 
         return 0;
 }
+#endif
 
 
 
@@ -118,10 +139,12 @@ struct options {
         uint32_t width;
         uint32_t height;
         uint32_t maxIter;
-        uint32_t offsetX;
-        uint32_t offsetY;
-        double windowX;
-        double windowY;
+
+        double startX;
+        double startY;
+        double endX;
+        double endY;
+
         char *outFileName;
 };
 
@@ -135,69 +158,56 @@ static const struct option longOpts[] = {
         {"height", required_argument, NULL, 'h'},
         {"max-iter", required_argument, NULL, 'm'},
         {"output", required_argument, NULL, 'o'},
-        {"x-window", required_argument, NULL, 'x'},
-        {"y-window", required_argument, NULL, 'y'},
-        {"offset-x", required_argument, NULL, 'a'},
-        {"offset-y", required_argument, NULL, 'b'},
+        {"crop", required_argument, NULL, 'c'},
 };
 
-static const char * shortOpts = "t:w:h:m:o:x:y:a:b:";
+static const char * shortOpts = "t:w:h:m:o:c:";
 
 
 
-int parse_options(struct options *progOptions, int argc, char **argv)
+int parse_options(struct options *pProgOptions, int argc, char **argv)
 {
         /* Initialize options with default values */
-        progOptions->threshold = 4.0;
-        progOptions->width = 1600;
-        progOptions->height = 900;
-        progOptions->maxIter = 30;
-        progOptions->outFileName = "out.img";
-        progOptions->offsetX = 0;
-        progOptions->offsetY = 0;
-        progOptions->windowX = 1.0;
-        progOptions->windowY = 1.0;
+        pProgOptions->threshold = 1.0;
+        pProgOptions->width = 1600;
+        pProgOptions->height = 900;
+        pProgOptions->maxIter = 30;
+        pProgOptions->outFileName = "out.img";
+        pProgOptions->startX = -1.0;
+        pProgOptions->startY = -1.0;
+        pProgOptions->endX = 1.0;
+        pProgOptions->endY = 1.0;
 
         int ret;
         int opt = getopt_long(argc, argv, shortOpts, longOpts, NULL);
         while (opt != -1) {
                 switch (opt) {
                         case 't':
-                                ret = sscanf(optarg, "%lf", &progOptions->threshold);
+                                ret = sscanf(optarg, "%lf", &pProgOptions->threshold);
                                 check (ret >= 0, "Failed to parse threshold");
                                 break;
                         case 'w':
-                                ret = sscanf(optarg, "%u", &progOptions->width);
+                                ret = sscanf(optarg, "%u", &pProgOptions->width);
                                 check (ret >= 0, "Failed to parse width");
                                 break;
                         case 'h':
-                                ret = sscanf(optarg, "%u", &progOptions->height);
+                                ret = sscanf(optarg, "%u", &pProgOptions->height);
                                 check (ret >= 0, "Failed to parse height");
                                 break;
                         case 'm':
-                                ret = sscanf(optarg, "%u", &progOptions->maxIter);
+                                ret = sscanf(optarg, "%u", &pProgOptions->maxIter);
                                 check (ret >= 0, "Failed to parse maxIter");
                                 break;
                         case 'o':
-                                progOptions->outFileName = calloc((strlen(optarg) + 1), sizeof(char));
-                                check_null(progOptions->maxIter);
-                                strcpy(progOptions->outFileName, optarg);
+                                pProgOptions->outFileName = calloc((strlen(optarg) + 1), sizeof(char));
+                                check_null(pProgOptions->maxIter);
+                                strcpy(pProgOptions->outFileName, optarg);
                                 break;
-                        case 'x': /* x-window */
-                                ret = sscanf(optarg, "%lf", &progOptions->windowX);
-                                check (ret >= 0, "Failed to parse x-window");
-                                break;
-                        case 'y': /* y-window */
-                                ret = sscanf(optarg, "%lf", &progOptions->windowY);
-                                check (ret >= 0, "Failed to parse y-window");
-                                break;
-                        case 'a': /* x-offset */
-                                ret = sscanf(optarg, "%u", &progOptions->offsetX);
-                                check (ret >= 0, "Failed to parse x-offset");
-                                break;
-                        case 'b': /* y-offset */
-                                ret = sscanf(optarg, "%u", &progOptions->offsetY);
-                                check (ret >= 0, "Failed to parse y-offset");
+                        case 'c': /* crop window */
+                                ret = sscanf(optarg, "%lf,%lf,%lf,%lf",
+                                             &pProgOptions->startX, &pProgOptions->startY,
+                                             &pProgOptions->endX, &pProgOptions->endY);
+                                check (ret >= 0, "Failed to parse crop window");
                                 break;
                         case 0: /* Not a short option */
                                 log_err("Unknown argument %s\n", argv[optind]);
@@ -209,11 +219,11 @@ int parse_options(struct options *progOptions, int argc, char **argv)
                 opt = getopt_long(argc, argv, shortOpts, longOpts, NULL);
         }
 
-        debug("Command-line args: threshold: %lf, width: %u, height: %u, x-window: %lf, y-window: %lf, "
-              "maxIter: %u, x-offset: %u, y-offset: %u, out file: %s\n",
-                        progOptions->threshold, progOptions->width, progOptions->height,
-                        progOptions->windowX, progOptions->windowY, progOptions->offsetX,
-                        progOptions->offsetY, progOptions->maxIter, progOptions->outFileName);
+        debug("Command-line args: threshold: %lf, width: %u, height: %u, "
+              "maxIter: %u, window: (%lf, %lf, %lf, %lf), out file: %s",
+              pProgOptions->threshold, pProgOptions->width, pProgOptions->height,
+              pProgOptions->maxIter, pProgOptions->startX, pProgOptions->startY,
+              pProgOptions->endX, pProgOptions->endY, pProgOptions->outFileName);
 
         return 0;
 }
@@ -233,9 +243,14 @@ int main(int argc, char **argv)
         FILE * outFile = fopen(o.outFileName, "w");
         check_null(outFile);
 
+        /* Compute the steps */
+        double stepX = (o.endX - o.startX) / (double)(o.width - 1);
+        double stepY = (o.endY - o.startY) / (double)(o.height - 1);
+
         /* Actually compute the image we want */
         color_t **image = allocate_image(o.width, o.height);
-        ret = compute_image(image, o.width, o.height, o.threshold, o.maxIter, mandelbrot_function);
+        ret = compute_window(image, o.startX, o.startY, stepX, stepY, o.width, o.height,
+                             o.threshold, o.maxIter, mandelbrot_function);
         check(ret == 0, "Failed to compute the image");
 
         /* And save the result to the file */
