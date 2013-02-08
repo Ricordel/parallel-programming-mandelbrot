@@ -21,14 +21,17 @@ int main(int argc, char **argv)
         check_null(outFile);
 
         /* Compute the steps */
-        double stepX = (o.endX - o.startX) / (double)(o.width - 1);
-        double stepY = (o.endY - o.startY) / (double)(o.height - 1);
+        double stepX = (o.area.endX - o.area.startX) / (double)(o.width - 1);
+        double stepY = (o.area.endY - o.area.startY) / (double)(o.height - 1);
+
+        struct sub_image subImage = {0, 0, o.width, o.height};
 
         /* Actually compute the image we want */
         color_t **image = allocate_image(o.width, o.height);
-        ret = compute_window(image, o.startX, o.startY, stepX, stepY, o.width, o.height,
+        ret = compute_window(image, o.area, stepX, stepY, subImage,
                              o.threshold, o.maxIter, classic_mandelbrot);
         check(ret == 0, "Failed to compute the image");
+
 
         /* And save the result to the file */
         ret = save_image(image, o.width, o.height, outFile);

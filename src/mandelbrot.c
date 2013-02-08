@@ -62,15 +62,14 @@ static color_t pixel_color(double complex point, double threshold, uint32_t maxI
 
 
 
-int compute_window(color_t **image, double startX, double startY, double stepX,
-                   double stepY, uint32_t width, uint32_t height, double threshold,
-                   uint32_t maxIter, mandelbrot_function_t func)
-        
+int compute_window(color_t **image, struct complex_plan_area totalArea,
+                   double stepX, double stepY, struct sub_image subImage,
+                   double threshold, uint32_t maxIter, mandelbrot_function_t func)
 {
-        for (uint32_t x = 0; x < width; x++) {
-                double z_real = x * stepX + startX;
-                for (uint32_t y = 0; y < height; y++) {
-                        double z_imag = y * stepY + startY;
+        for (uint32_t x = subImage.fromX; x < subImage.toX; x++) {
+                double z_real = x * stepX + totalArea.startX;
+                for (uint32_t y = subImage.fromY; y < subImage.toY; y++) {
+                        double z_imag = y * stepY + totalArea.startY;
                         double complex z = z_real + z_imag * I;
                         image[x][y] = pixel_color(z, threshold, maxIter, func);
                 }
@@ -146,10 +145,10 @@ int parse_options(struct prog_options *pProgOptions, int argc, char **argv)
         pProgOptions->height = 900;
         pProgOptions->maxIter = 30;
         pProgOptions->outFileName = "out.img";
-        pProgOptions->startX = -INFINITY;
-        pProgOptions->startY = -INFINITY;
-        pProgOptions->endX = INFINITY;
-        pProgOptions->endY = INFINITY;
+        pProgOptions->area.startX = -INFINITY;
+        pProgOptions->area.startY = -INFINITY;
+        pProgOptions->area.endX = INFINITY;
+        pProgOptions->area.endY = INFINITY;
 
         int ret;
         int opt = getopt_long(argc, argv, shortOpts, longOpts, NULL);
@@ -178,8 +177,8 @@ int parse_options(struct prog_options *pProgOptions, int argc, char **argv)
                                 break;
                         case 'c': /* crop window */
                                 ret = sscanf(optarg, "%lf,%lf,%lf,%lf",
-                                             &pProgOptions->startX, &pProgOptions->startY,
-                                             &pProgOptions->endX, &pProgOptions->endY);
+                                             &pProgOptions->area.startX, &pProgOptions->area.startY,
+                                             &pProgOptions->area.endX, &pProgOptions->area.endY);
                                 check (ret >= 0, "Failed to parse crop window");
                                 break;
                         case 0: /* Not a short option */
@@ -193,11 +192,11 @@ int parse_options(struct prog_options *pProgOptions, int argc, char **argv)
         }
 
         /* If the crop window was not defined, set it to -thr,-thr,thr,thr */
-        if (pProgOptions->startX == -INFINITY) {
-                pProgOptions->startX = -pProgOptions->threshold;
-                pProgOptions->startY = -pProgOptions->threshold;
-                pProgOptions->endX   = pProgOptions->threshold;
-                pProgOptions->endY   = pProgOptions->threshold;
+        if (pProgOptions->area.startX == -INFINITY) {
+                pProgOptions->area.startX = -pProgOptions->threshold;
+                pProgOptions->area.startY = -pProgOptions->threshold;
+                pProgOptions->area.endX   = pProgOptions->threshold;
+                pProgOptions->area.endY   = pProgOptions->threshold;
         }
 
         if (pProgOptions->maxIter > 255) {
@@ -207,8 +206,8 @@ int parse_options(struct prog_options *pProgOptions, int argc, char **argv)
         debug("Command-line args: threshold: %lf, width: %u, height: %u, "
               "maxIter: %u, window: (%lf, %lf, %lf, %lf), out file: %s",
               pProgOptions->threshold, pProgOptions->width, pProgOptions->height,
-              pProgOptions->maxIter, pProgOptions->startX, pProgOptions->startY,
-              pProgOptions->endX, pProgOptions->endY, pProgOptions->outFileName);
+              pProgOptions->maxIter, pProgOptions->area.startX, pProgOptions->area.startY,
+              pProgOptions->area.endX, pProgOptions->area.endY, pProgOptions->outFileName);
 
         return 0;
 }

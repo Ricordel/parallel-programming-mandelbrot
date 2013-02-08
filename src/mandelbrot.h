@@ -17,6 +17,29 @@ typedef uint8_t color_t;
 
 
 /**
+ * Area of the complex plan to be mapped on the final image
+ */
+struct complex_plan_area {
+        double startX;
+        double startY;
+        double endX;
+        double endY;
+};
+
+
+/**
+ * Sub-ipart of the image to be computed
+ */
+struct sub_image {
+        uint32_t fromX;
+        uint32_t fromY;
+        uint32_t toX;
+        uint32_t toY;
+};
+
+
+
+/**
  * Allocate a 2-dimensional array of colors.
  * We want to index our image [x][y] with x on the horizontal direction,
  * so x must be able to go from 0 to nCols - 1, and y from 0 to nRows - 1
@@ -34,12 +57,9 @@ typedef double complex (mandelbrot_function_t(double complex z_n, double complex
 
 
 
-int compute_window(color_t **image, double startX, double startY, double stepX,
-                   double stepY, uint32_t width, uint32_t height, double threshold,
-                   uint32_t maxIter, mandelbrot_function_t func);
-
-
-
+int compute_window(color_t **image, struct complex_plan_area totalArea,
+                   double stepX, double stepY, struct sub_image subImage,
+                   double threshold, uint32_t maxIter, mandelbrot_function_t func);
 
 
 
@@ -63,10 +83,7 @@ struct prog_options {
         uint32_t height;
         uint32_t maxIter;
 
-        double startX;
-        double startY;
-        double endX;
-        double endY;
+        struct complex_plan_area area;
 
         char *outFileName;
 };
