@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <complex.h> /* NOTE: needs a C99 compliant compiler ! */
 #include <getopt.h>
+#include <math.h>
 
 #include "dbg.h"
 
@@ -104,6 +105,8 @@ int compute_image(color_t **image, uint32_t width, uint32_t height,
 /**
  * Save an image as an ASCII file (for portability). Print the dimensions of
  * the image on the first line, to ease further reading, then the values line by line.
+ * NB: the coordinate system in the image has the Y-axis reversed compared to the
+ * one on the classical complex plan. So we must invert it.
  */
 int save_image(color_t **image, uint32_t width, uint32_t height, FILE *outFile)
 {
@@ -111,7 +114,7 @@ int save_image(color_t **image, uint32_t width, uint32_t height, FILE *outFile)
         ret = fprintf(outFile, "%u %u\n", width, height);
         check(ret >= 0, "Failed to print in file");
 
-        for (uint32_t y = 0; y < height; y++) {
+        for (int32_t y = height-1; y >= 0; y--) {
                 for (uint32_t x = 0; x < width; x++) {
                         ret = fprintf(outFile, "%u ", image[x][y]);
                 }
@@ -173,10 +176,10 @@ int parse_options(struct options *pProgOptions, int argc, char **argv)
         pProgOptions->height = 900;
         pProgOptions->maxIter = 30;
         pProgOptions->outFileName = "out.img";
-        pProgOptions->startX = -1.0;
-        pProgOptions->startY = -1.0;
-        pProgOptions->endX = 1.0;
-        pProgOptions->endY = 1.0;
+        pProgOptions->startX = -INFINITY;
+        pProgOptions->startY = -INFINITY;
+        pProgOptions->endX = INFINITY;
+        pProgOptions->endY = INFINITY;
 
         int ret;
         int opt = getopt_long(argc, argv, shortOpts, longOpts, NULL);
@@ -217,6 +220,14 @@ int parse_options(struct options *pProgOptions, int argc, char **argv)
                                 break;
                 }
                 opt = getopt_long(argc, argv, shortOpts, longOpts, NULL);
+        }
+
+        /* If the crop window was not defined, set it to -thr,-thr,thr,thr */
+        if (pProgOptions->startX == -INFINITY) {
+                pProgOptions->startX = -pProgOptions->threshold;
+                pProgOptions->startY = -pProgOptions->threshold;
+                pProgOptions->endX   = pProgOptions->threshold;
+                pProgOptions->endY   = pProgOptions->threshold;
         }
 
         debug("Command-line args: threshold: %lf, width: %u, height: %u, "
