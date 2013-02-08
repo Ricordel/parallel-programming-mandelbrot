@@ -5,17 +5,17 @@ LD = gcc
 MPILD = mpicc
 LDFLAGS = -lm
 
-COMMON_HEADERS = src/dbg.h src/mandelbrot.h
+COMMON_HEADERS = src/dbg.h src/mandelbrot.h src/option_parser.h
 
 all: mandelbrot_serial mandelbrot_mpi
 
 dev: CFLAGS = -g -std=c99 -Wall -Wextra -O0
 dev: all
 
-mandelbrot_serial: bin/mandelbrot_serial.o bin/mandelbrot.o
+mandelbrot_serial: bin/mandelbrot_serial.o bin/mandelbrot.o bin/option_parser.o
 	$(LD) $(LDFLAGS) $^ -o $@
 
-mandelbrot_mpi: bin/mandelbrot_mpi.o bin/mandelbrot.o
+mandelbrot_mpi: bin/mandelbrot_mpi.o bin/mandelbrot.o bin/option_parser.o
 	$(MPILD) $(LDFLAGS) $^ -o $@
 
 bin/%_mpi.o: src/%_mpi.c $(COMMON_HEADERS)

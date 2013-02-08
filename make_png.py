@@ -10,11 +10,11 @@ import colorsys
 ############## Palette definitions  ###################
 
 
-def rainbow_palette(nSteps, (startHue, startSat, startVal), (endHue, endSat, endVal), reverse=False):
-    """ Uses the HSV colorspace to generate a rainbow of nSteps
-        different colors, starting at color startColor and ending
-        at maxColor. """
-
+def hsv_palette(nSteps, (startHue, startSat, startVal), (endHue, endSat, endVal), reverse=False):
+    """ Generate a palette stepping through the HSV colorspace. It allows
+        for easy rainbow palettes, or monochrome, ...
+        All given values must be in the range 0..1. """
+    
     hueStep = (endHue - startHue) / nSteps
     satStep = (endSat - startSat) / nSteps
     valStep = (endVal - startVal) / nSteps
@@ -33,7 +33,10 @@ def rainbow_palette(nSteps, (startHue, startSat, startVal), (endHue, endSat, end
     return colors
 
 
-def gradient_palette(nSteps, (startR, startG, startB), (endR, endG, endB)):
+def rgb_palette(nSteps, (startR, startG, startB), (endR, endG, endB)):
+    """ Generate a palette stepping through the RGB colorspace. Allows for
+        easy gradients between two colors.
+        RGB coordinates taken in argument must be in the range 0..255. """
     def normalize(c):
         return float(c) / 255
 
@@ -66,6 +69,8 @@ def gradient_palette(nSteps, (startR, startG, startB), (endR, endG, endB)):
 
 
 def read_file(filename):
+    """ Read a file output by the mandelbrot program and return the width and
+        height of the image, and the color indexes. """
     lines = open(filename).readlines()
     wh = lines[0].split(" ")
     width, height = int(wh[0]), int(wh[1])
@@ -77,7 +82,10 @@ def read_file(filename):
     return width, height, image
 
 
+
 def to_rgb(width, height, image, palette):
+    """ Takes an image as read by read_file and returns a PNG image
+        (as an image structure for the Image module). """
     out_image = Image.new("RGB", (width, height))
     for x in range(width):
         for y in range(height):
@@ -103,11 +111,11 @@ if __name__ == "__main__":
     palette_size = max(all_pixels) + 1 # starts from 0 !
 
     ### Some nice palettes:
-    palettes = [ rainbow_palette(palette_size, (0.5, 0.0, 1.0), (0.8, 1.0, 1.0), reverse=True)
-               , gradient_palette(palette_size, (0, 181, 255), (255, 0, 82))
-               , rainbow_palette(palette_size, (15./360, 1.0, 1.0), (15./360, 0, 0.7))
-               , rainbow_palette(palette_size, (0, 1.0, 0.0), (0, 1.0, 1.0))
-               , rainbow_palette(palette_size, (0, 1.0, 0.0), (0, 0.8, 1.0)) ]
+    palettes = [ hsv_palette(palette_size, (0.5, 0.0, 1.0), (0.8, 1.0, 1.0), reverse=True)
+               , rgb_palette(palette_size, (0, 181, 255), (255, 0, 82))
+               , hsv_palette(palette_size, (15./360, 1.0, 1.0), (15./360, 0, 0.7))
+               , hsv_palette(palette_size, (0, 1.0, 0.0), (0, 1.0, 1.0))
+               , hsv_palette(palette_size, (0, 1.0, 0.0), (0, 0.8, 1.0)) ]
 
     try:
         palette_number = int(sys.argv[3])

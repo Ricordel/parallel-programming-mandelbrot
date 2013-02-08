@@ -2,6 +2,7 @@
 #include <mpi.h>
 
 #include "dbg.h"
+#include "option_parser.h"
 #include "mandelbrot.h"
 
 
