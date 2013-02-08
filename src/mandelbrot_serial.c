@@ -24,11 +24,9 @@ int main(int argc, char **argv)
         double stepX = (o.area.endX - o.area.startX) / (double)(o.width - 1);
         double stepY = (o.area.endY - o.area.startY) / (double)(o.height - 1);
 
-        struct sub_image subImage = {0, 0, o.width, o.height};
-
         /* Actually compute the image we want */
-        color_t **image = allocate_image(o.width, o.height);
-        ret = compute_window(image, o.area, stepX, stepY, subImage,
+        color_t *image = allocate_image(o.width, o.height);
+        ret = compute_window(image, o.area, o.width, o.height, stepX, stepY,
                              o.threshold, o.maxIter, classic_mandelbrot);
         check(ret == 0, "Failed to compute the image");
 

@@ -5,7 +5,6 @@ import Image
 import sys
 import itertools
 import colorsys
-import joblib
 
 
 ############## Palette definitions  ###################
@@ -89,17 +88,11 @@ def to_rgb(width, height, image, palette):
 
 
 
-### Some nice palettes:
-    #palette = rainbow_palette(palette_size, (0.5, 0.0, 1.0), (0.8, 1.0, 1.0), reverse=True)
-    #palette = gradient_palette(palette_size, (0, 181, 255), (255, 0, 82))
-    #palette = rainbow_palette(palette_size, (15./360, 1.0, 1.0), (15./360, 0, 0.7))
-    #palette = rainbow_palette(palette_size, (0, 1.0, 0.0), (0, 1.0, 1.0))
-
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: %s inFile outFile" % sys.argv[0])
+    if len(sys.argv) != 4:
+        print("Usage: %s inFile outFile paletteNumber" % sys.argv[0])
         exit(1)
 
     in_file_name = sys.argv[1]
@@ -108,7 +101,24 @@ if __name__ == "__main__":
     width, height, image = read_file(in_file_name)
     all_pixels = itertools.chain(*image)
     palette_size = max(all_pixels) + 1 # starts from 0 !
-    palette = rainbow_palette(palette_size, (0, 1.0, 0.0), (0, 0.8, 1.0))
 
-    rgb_image = to_rgb(width, height, image, palette)
+    ### Some nice palettes:
+    palettes = [ rainbow_palette(palette_size, (0.5, 0.0, 1.0), (0.8, 1.0, 1.0), reverse=True)
+               , gradient_palette(palette_size, (0, 181, 255), (255, 0, 82))
+               , rainbow_palette(palette_size, (15./360, 1.0, 1.0), (15./360, 0, 0.7))
+               , rainbow_palette(palette_size, (0, 1.0, 0.0), (0, 1.0, 1.0))
+               , rainbow_palette(palette_size, (0, 1.0, 0.0), (0, 0.8, 1.0)) ]
+
+    try:
+        palette_number = int(sys.argv[3])
+    except ValueError:
+        print("The palette must be an int between 0 and %d" % len(palettes - 1))
+        exit(1)
+
+    if palette_number >= len(palettes):
+        print("The palette must be an int between 0 and %d" % len(palettes - 1))
+        exit(1)
+
+
+    rgb_image = to_rgb(width, height, image, palettes[palette_number])
     rgb_image.save(out_file_name)

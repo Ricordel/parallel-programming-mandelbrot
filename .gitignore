@@ -6,3 +6,4 @@
 *.png
 bin/*
 mandelbrot_serial
+mandelbrot_mpi

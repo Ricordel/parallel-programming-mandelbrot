@@ -21,15 +21,10 @@ typedef uint8_t color_t;
  * We want to index our image [x][y] with x on the horizontal direction,
  * so x must be able to go from 0 to nCols - 1, and y from 0 to nRows - 1
  */
-color_t ** allocate_image(uint32_t nCols, uint32_t nRows)
+color_t * allocate_image(uint32_t nCols, uint32_t nRows)
 {
-        color_t ** image = (color_t **) calloc(nCols, sizeof(color_t *));
+        color_t * image = (color_t *) calloc(nCols * nRows, sizeof(color_t));
         check_mem(image);
-
-        for (uint32_t i = 0; i < nCols; i++) {
-                image[i] = (color_t *) calloc(nRows, sizeof(color_t));
-                check_mem(image[i]);
-        }
 
         return image;
 }
@@ -50,7 +45,6 @@ typedef double complex (mandelbrot_function_t(double complex z_n, double complex
 static color_t pixel_color(double complex point, double threshold, uint32_t maxIter,
                            mandelbrot_function_t func)
 {
-        debug("maxIter: %u\n", maxIter);
         double complex z = 0;
         color_t color;
         for (color = 0; color < maxIter && cabs(z) < threshold; color++) {
@@ -62,16 +56,16 @@ static color_t pixel_color(double complex point, double threshold, uint32_t maxI
 
 
 
-int compute_window(color_t **image, struct complex_plan_area totalArea,
-                   double stepX, double stepY, struct sub_image subImage,
-                   double threshold, uint32_t maxIter, mandelbrot_function_t func)
+int compute_window(color_t *image, struct complex_plan_area area, uint32_t width,
+                   uint32_t height, double stepX, double stepY, double threshold,
+                   uint32_t maxIter, mandelbrot_function_t func)
 {
-        for (uint32_t x = subImage.fromX; x < subImage.toX; x++) {
-                double z_real = x * stepX + totalArea.startX;
-                for (uint32_t y = subImage.fromY; y < subImage.toY; y++) {
-                        double z_imag = y * stepY + totalArea.startY;
+        for (uint32_t x = 0; x < width; x++) {
+                double z_real = x * stepX + area.startX;
+                for (uint32_t y = 0; y < height; y++) {
+                        double z_imag = y * stepY + area.startY;
                         double complex z = z_real + z_imag * I;
-                        image[x][y] = pixel_color(z, threshold, maxIter, func);
+                        image[x + width*y] = pixel_color(z, threshold, maxIter, func);
                 }
         }
 
@@ -90,7 +84,7 @@ int compute_window(color_t **image, struct complex_plan_area totalArea,
  * NB: the coordinate system in the image has the Y-axis reversed compared to the
  * one on the classical complex plan. So we must invert it.
  */
-int save_image(color_t **image, uint32_t width, uint32_t height, FILE *outFile)
+int save_image(color_t *image, uint32_t width, uint32_t height, FILE *outFile)
 {
         int ret;
         ret = fprintf(outFile, "%u %u\n", width, height);
@@ -98,7 +92,7 @@ int save_image(color_t **image, uint32_t width, uint32_t height, FILE *outFile)
 
         for (int32_t y = height-1; y >= 0; y--) {
                 for (uint32_t x = 0; x < width; x++) {
-                        ret = fprintf(outFile, "%u ", image[x][y]);
+                        ret = fprintf(outFile, "%u ", image[x + width*y]);
                 }
                 ret = fprintf(outFile, "\n");
         }
@@ -215,7 +209,6 @@ int parse_options(struct prog_options *pProgOptions, int argc, char **argv)
 
 double complex classic_mandelbrot(double complex z_n, double complex point)
 {
-        debug("Enter mandelbrot function");
         return z_n * z_n + point;
 }
 

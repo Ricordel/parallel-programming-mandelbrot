@@ -44,7 +44,7 @@ struct sub_image {
  * We want to index our image [x][y] with x on the horizontal direction,
  * so x must be able to go from 0 to nCols - 1, and y from 0 to nRows - 1
  */
-color_t ** allocate_image(uint32_t nCols, uint32_t nRows);
+color_t *allocate_image(uint32_t nCols, uint32_t nRows);
 
 
 /**
@@ -57,9 +57,9 @@ typedef double complex (mandelbrot_function_t(double complex z_n, double complex
 
 
 
-int compute_window(color_t **image, struct complex_plan_area totalArea,
-                   double stepX, double stepY, struct sub_image subImage,
-                   double threshold, uint32_t maxIter, mandelbrot_function_t func);
+int compute_window(color_t *image, struct complex_plan_area area, uint32_t width,
+                   uint32_t height, double stepX, double stepY, double threshold,
+                   uint32_t maxIter, mandelbrot_function_t func);
 
 
 
@@ -70,7 +70,7 @@ int compute_window(color_t **image, struct complex_plan_area totalArea,
  * NB: the coordinate system in the image has the Y-axis reversed compared to the
  * one on the classical complex plan. So we must invert it.
  */
-int save_image(color_t **image, uint32_t width, uint32_t height, FILE *outFile);
+int save_image(color_t *image, uint32_t width, uint32_t height, FILE *outFile);
 
 
 
