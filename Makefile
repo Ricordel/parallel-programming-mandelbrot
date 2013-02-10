@@ -16,7 +16,7 @@ mandelbrot_serial: bin/mandelbrot_serial.o bin/mandelbrot.o bin/option_parser.o
 	$(LD) $(LDFLAGS) $^ -o $@
 
 mandelbrot_mpi: bin/mandelbrot_mpi.o bin/mandelbrot.o bin/option_parser.o
-	$(MPILD) $(LDFLAGS) $^ -o $@
+	$(MPILD) $^ -o $@ $(LDFLAGS) 
 
 bin/%_mpi.o: src/%_mpi.c $(COMMON_HEADERS)
 	$(MPICC) $(CFLAGS) $< -o $@
