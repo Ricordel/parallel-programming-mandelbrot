@@ -7,9 +7,9 @@
 
 
 
-// 
-// Long command-line option and their short equivalents
-//
+/* 
+ * Long command-line option and their short equivalents
+ */
 static const struct option longOpts[] = {
         {"threshold", required_argument, NULL, 't'},
         {"width", required_argument, NULL, 'w'},
@@ -17,9 +17,33 @@ static const struct option longOpts[] = {
         {"max-iter", required_argument, NULL, 'm'},
         {"output", required_argument, NULL, 'o'},
         {"crop", required_argument, NULL, 'c'},
+        {"help", no_argument, NULL, 'H'},
+        {NULL, 0, 0, 0} /* To prevent crash in case of illegal option */
 };
 
-static const char * shortOpts = "t:w:h:m:o:c:";
+static const char * shortOpts = "Ht:w:h:m:o:c:";
+
+
+
+
+
+static void print_help()
+{
+        puts("Usage: prog-name [args]\n");
+
+        puts("Available arguments:");
+        puts("\t-H --help              Print this message and exit");
+        puts("\t-t --threshold thr     Threshold after which we consider a point is divergent");
+        puts("\t-w --width w           Width, in pixels, of the output image");
+        puts("\t-h --height h          Height, in pixels, of the output image");
+        puts("\t-m --max-iter m        Maximum number of iterations before considering the point is stationnary");
+        puts("\t-c --crop x0,y0,x1,y1  Section of the complex plan that will be considered\n"
+             "\t                       from (x0, y0) (bottom-left) to (x1,y1) (top-right)");
+        puts("\t-o --output path       Name of the output file");
+}
+
+
+
 
 
 
@@ -67,11 +91,17 @@ int parse_options(struct prog_options *pProgOptions, int argc, char **argv)
                                              &pProgOptions->area.endX, &pProgOptions->area.endY);
                                 check (ret >= 0, "Failed to parse crop window");
                                 break;
+                        case 'H':
+                                print_help();
+                                exit(0);
+                                break;
                         case 0: /* Not a short option */
                                 log_err("Unknown argument %s\n", argv[optind]);
+                                exit(1);
                                 break;
                         default:
-                                die("Default case should not be reached !");
+                                log_err("Unknown argument %s\n", argv[optind]);
+                                exit(1);
                                 break;
                 }
                 opt = getopt_long(argc, argv, shortOpts, longOpts, NULL);
