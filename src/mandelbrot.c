@@ -24,14 +24,6 @@ color_t * allocate_image(uint32_t nCols, uint32_t nRows)
 }
 
 
-/**
- * Type for an iteration function, applied to the current value
- * of the sequence and to the point
- */
-typedef double complex (mandelbrot_function_t(double complex z_n, double complex point));
-
-
-
 
 /**
  * Compute the color of a pixel using func to apply the mandelbrod recursion.
