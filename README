@@ -1,0 +1,37 @@
+### Build ###
+
+Compile everything:
+
+    $ make
+
+Compile only the MPI version:
+     $ make mandelbrot_mpi
+
+Compile only the serial version (for checking results against the MPI version for instance):
+    $ make mandelbrot_serial
+
+NOTE: A C99-compliant compiler is required.
+
+
+### Run ###
+To run the program
+    $ ./mandelbrot_serial [parameters]
+Or
+    $ mpirun -np <n processors> ./mandelbrot_mpi [parameters]
+
+Possible parameters can be seen with
+    $ ./mandelbrot_serial --help
+    $ ./mandelbrot_mpi --help
+
+
+### Exploit output ###
+
+The ASCII output file can be transformed into a png using the 'make_png.py' script:
+    $ ./make_png.py inputFile outputFile.png <palette>
+where <palette> is a number between 0 and 11, corresponding to different color-mapping.
+
+NOTE: you need the Python Imaging Library to run the Python script, which is not
+available on Ferlin (but is available on u-shell.csc.kth.se for instance).
+
+The script 'make_examples.sh' creates some sample images calling the MPI version
+and places them in the 'gallery/' subdirectory.
