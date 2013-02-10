@@ -24,11 +24,20 @@ bin/%_mpi.o: src/%_mpi.c $(COMMON_HEADERS)
 bin/%.o: src/%.c $(COMMON_HEADERS)
 	$(CC) $(CFLAGS) $< -o $@
 
+dist:
+	rm -rf ./dist
+	mkdir -p ./dist/parpro1-13-ricordel-hw1
+	cp -r bin src *.py *.sh Makefile README dist/parpro1-13-ricordel-hw1
+	cd dist && tar cvzf parpro1-13-ricordel-hw1.tar.gz ./parpro1-13-ricordel-hw1
+	rm -rf ./dist/parpro1-13-ricordel-hw1
+
+
 
 clean:
 	rm -f bin/*
 	rm -f mandelbrot_serial mandelbrot_mpi
 	rm -f *.pyc
+	rm -rf ./dist/
 
 
-.PHONY: clean
+.PHONY: clean dist
