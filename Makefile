@@ -13,10 +13,10 @@ dev: CFLAGS = -g -std=c99 -Wall -Wextra -O0
 dev: all
 
 mandelbrot_serial: bin/mandelbrot_serial.o bin/mandelbrot.o bin/option_parser.o
-	$(LD) $(LDFLAGS) $^ -o $@
+	$(LD) $^ $(LDFLAGS) -o $@
 
 mandelbrot_mpi: bin/mandelbrot_mpi.o bin/mandelbrot.o bin/option_parser.o
-	$(MPILD) $^ -o $@ $(LDFLAGS) 
+	$(MPILD) $^ $(LDFLAGS) -o $@
 
 bin/%_mpi.o: src/%_mpi.c $(COMMON_HEADERS)
 	$(MPICC) $(CFLAGS) $< -o $@
@@ -27,7 +27,7 @@ bin/%.o: src/%.c $(COMMON_HEADERS)
 
 clean:
 	rm -f bin/*
-	rm -f mandelbrot_serial
+	rm -f mandelbrot_serial mandelbrot_mpi
 	rm -f *.pyc
 
 
