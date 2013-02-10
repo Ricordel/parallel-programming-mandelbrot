@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ ! -d gallery ]
+then
+    mkdir gallery
+fi
+
 # Reproduction of the figure from the lecture notes
 mpirun -np 4 ./mandelbrot_mpi -o gallery/lecture_notes.img -w 2048 -h 2048 -m 255 -t 2.0 -c -2.0,-2.0,2.0,2.0 && ./make_png.py gallery/lecture_notes.img gallery/lecture_notes.png 11
 

@@ -1,10 +1,15 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 
-import Image
 import sys
 import itertools
 import colorsys
+
+try:
+    import Image
+except ImportError:
+    print("This script requires the Python Imaging Library to work")
+    sys.exit(1)
 
 
 ############## Palette definitions  ###################
@@ -106,7 +111,7 @@ def to_rgb(width, height, image, palette):
 if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: %s inFile outFile paletteNumber" % sys.argv[0])
-        exit(1)
+        sys.exit(1)
 
     in_file_name = sys.argv[1]
     out_file_name = sys.argv[2]
@@ -137,11 +142,11 @@ if __name__ == "__main__":
         palette_number = int(sys.argv[3])
     except ValueError:
         print("The palette must be an int between 0 and %d" % len(palettes - 1))
-        exit(1)
+        sys.exit(1)
 
     if palette_number >= len(palettes):
         print("The palette must be an int between 0 and %d" % len(palettes - 1))
-        exit(1)
+        sys.exit(1)
 
 
     rgb_image = to_rgb(width, height, image, palettes[palette_number])
