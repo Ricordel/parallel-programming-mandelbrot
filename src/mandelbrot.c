@@ -111,3 +111,38 @@ double complex classic_mandelbrot(double complex z_n, double complex point)
 {
         return z_n * z_n + point;
 }
+
+double complex power_3(double complex z_n, double complex point)
+{
+        return z_n * z_n * z_n + point;
+}
+
+double complex power_4(double complex z_n, double complex point)
+{
+        return z_n * z_n * z_n * z_n + point;
+}
+
+double complex power_5(double complex z_n, double complex point)
+{
+        return z_n * z_n * z_n * z_n * z_n + point;
+}
+
+double complex power_6(double complex z_n, double complex point)
+{
+        return z_n * z_n * z_n * z_n * z_n * z_n + point;
+}
+
+double complex mandelbrot_sin(double complex z_n, double complex point)
+{
+        return point * csin(z_n);
+}
+
+double complex mandelbrot_cos(double complex z_n, double complex point)
+{
+        return point * ccos(z_n);
+}
+
+double complex tricorn(double complex z_n, double complex point)
+{
+        return point + conj(z_n) * conj(z_n);
+}

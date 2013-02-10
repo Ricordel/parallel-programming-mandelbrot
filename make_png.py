@@ -116,7 +116,9 @@ if __name__ == "__main__":
                , rgb_palette(palette_size, (0, 181, 255), (255, 0, 82))
                , hsv_palette(palette_size, (15./360, 1.0, 1.0), (15./360, 0, 0.7))
                , hsv_palette(palette_size, (0, 1.0, 0.0), (0, 1.0, 1.0))
-               , hsv_palette(palette_size, (0, 1.0, 0.0), (0, 0.8, 1.0)) ]
+               , hsv_palette(palette_size, (0, 1.0, 0.0), (0, 0.8, 1.0))
+               , hsv_palette(palette_size, (0.5, 1.0, 1.0), (1.0, 1.0, 1.0))
+               , hsv_palette(palette_size, (65./360, 0.0, 0.5), (0.0, 1.0, 1.0), reverse=True) ]
 
     try:
         palette_number = int(sys.argv[3])
