@@ -71,7 +71,8 @@ def rgb_palette(nSteps, (startR, startG, startB), (endR, endG, endB)):
 def read_file(filename):
     """ Read a file output by the mandelbrot program and return the width and
         height of the image, and the color indexes. """
-    with open(filename) as file:
+    try:
+        file = open(filename)
         lines = file.readlines()
         wh = lines[0].split(" ")
         width, height = int(wh[0]), int(wh[1])
@@ -81,6 +82,9 @@ def read_file(filename):
         image = [[ int(e) for e in l] for l in image]
 
         return width, height, image
+    except:
+        file.close()
+
 
 
 
