@@ -105,9 +105,10 @@ int main(int argc, char **argv)
         if (rank == 0) {
                 for (int node = 1; node < nbNodes; node++) {
                         debug("Receiving from node %d...", node);
-                        ret = MPI_Recv(&image[first_line_of_node(node, nbNodes, o.height) * o.width],
-                                       o.width * lines_at_node(node, nbNodes, o.height),
-                                       MPI_BYTE, node, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+                        int firstPixel = first_line_of_node(node, nbNodes, o.height) * o.width;
+                        int nPixels = lines_at_node(node, nbNodes, o.height) * o.width;
+                        ret = MPI_Recv(&image[firstPixel], nPixels, MPI_BYTE, node, MPI_ANY_TAG,
+                                       MPI_COMM_WORLD, &status);
                         check(ret == MPI_SUCCESS, "Node 0: Failed to receive from node %d\n", node);
                 }
 
@@ -115,7 +116,8 @@ int main(int argc, char **argv)
                 ret = save_image(image, o.width, o.height, outFile);
                 check(ret == 0, "Failed to save the image to file");
         } else {
-                ret = MPI_Send(image, o.width * lines_at_node(rank, nbNodes, o.height), MPI_BYTE, 0, 1, MPI_COMM_WORLD);
+                int nPixels = lines_at_node(rank, nbNodes, o.height) * o.width;
+                ret = MPI_Send(image, nPixels, MPI_BYTE, 0, 1, MPI_COMM_WORLD);
                 check(ret == MPI_SUCCESS, "Node %d: failed to send to master", rank);
         }
 
