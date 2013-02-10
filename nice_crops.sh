@@ -12,6 +12,10 @@ images_dir=images
 # A zoom on the front
 ./mandelbrot_serial -o $images_dir/zoom_on_front.img -w 3000 -h 3000 -m 40 -t 3.0 -c -1.7,-0.5,-0.7,0.5
 
+# Close zoom top left
+mpirun -np 4 ./mandelbrot_mpi -o out.img -w 3000 -h 3000 -m 40 -t 3.0 -c 0.2,0.45,0.47,0.72
+
+
 # Nice with the cosine
 mpirun -np 4 ./mandelbrot_mpi -o test.img -w 4000 -h 2500 -m 30 -t 10 -c -4,-2.25,4,2.25
 

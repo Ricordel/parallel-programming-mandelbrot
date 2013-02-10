@@ -118,7 +118,16 @@ if __name__ == "__main__":
                , hsv_palette(palette_size, (0, 1.0, 0.0), (0, 1.0, 1.0))
                , hsv_palette(palette_size, (0, 1.0, 0.0), (0, 0.8, 1.0))
                , hsv_palette(palette_size, (0.5, 1.0, 1.0), (1.0, 1.0, 1.0))
-               , hsv_palette(palette_size, (65./360, 0.0, 0.5), (0.0, 1.0, 1.0), reverse=True) ]
+               , hsv_palette(palette_size, (65./360, 0.0, 0.5), (0.0, 1.0, 1.0), reverse=True)
+               , hsv_palette(palette_size, (0.05, 0.0, 1.0), (0.0, 1.0, 1.0), reverse=True)
+               , hsv_palette(palette_size, (0.70, 0.0, 1.0), (0.70, 1.0, 1.0), reverse=True)
+               , hsv_palette(palette_size, (0.20, 0.0, 1.0), (0.20, 1.0, 1.0), reverse=True)
+               , hsv_palette(palette_size, (0, 0.0, 1.0), (0, 1.0, 0.5))
+                # Essayer de jouer sur les overflows pour faire un truc moche mais ressemblant à la figure du cours
+               , hsv_palette(palette_size, (0.0, 1.0, 1.0), (45.65, 1.0, 1.0), reverse=False) ]
+
+    # Tune the last one: white cardioid and black contour
+    palettes[10][-1] = (255, 255, 255)
 
     try:
         palette_number = int(sys.argv[3])
