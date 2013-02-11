@@ -110,9 +110,6 @@ int save_image(color_t *image, uint32_t width, uint32_t height, FILE *outFile);
  */
 double complex classic_mandelbrot(double complex z_n, double complex point);
 
-
-double complex classic_mandelbrot(double complex z_n, double complex point);
-
 double complex power_3(double complex z_n, double complex point);
 
 double complex power_4(double complex z_n, double complex point);
