@@ -1,6 +1,12 @@
 #ifndef __dbg_h__
 #define __dbg_h__
 
+/*************
+ * Mostly inspired from Zed Shaw's Awesome Debug Macros
+ * (see http://c.learncodethehardway.org/book/ex20.html)
+ * and slightly modified to suit my needs.
+ *************/
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -29,8 +35,6 @@
                       fprintf(stderr, "\n")
 
 #define check(A, ...) if(!(A)) { log_err(__VA_ARGS__); errno=0; abort(); }
-
-#define sentinel(...) { log_err(__VA_ARGS__); errno=0; abort(); }
 
 #define check_mem(A) check((A), "Out of memory.")
 

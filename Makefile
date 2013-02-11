@@ -30,6 +30,10 @@ dist:
 	cp -r bin src *.py *.sh Makefile README dist/parpro1-13-ricordel-hw1
 	cd dist && tar cvzf parpro1-13-ricordel-hw1.tar.gz ./parpro1-13-ricordel-hw1
 	rm -rf ./dist/parpro1-13-ricordel-hw1
+	a2ps --pretty-print=C --output dist/hw1-code-ricordel.ps \
+		src/mandelbrot.h src/mandelbrot.c src/option_parser.h \
+		src/option_parser.c src/mandelbrot_mpi.c src/mandelbrot_serial.c src/dbg.h
+	ps2pdf dist/hw1-code-ricordel.ps dist/hw1-code-ricordel.pdf
 
 
 
