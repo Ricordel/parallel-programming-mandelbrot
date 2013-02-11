@@ -11,9 +11,8 @@
 
 
 /**
- * Allocate a 2-dimensional array of colors.
- * We want to index our image [x][y] with x on the horizontal direction,
- * so x must be able to go from 0 to nCols - 1, and y from 0 to nRows - 1
+ * Allocate a 1-dimensional array of colors big enough to contain an
+ * image of nCols columns and nRows rows.
  */
 color_t * allocate_image(uint32_t nCols, uint32_t nRows)
 {
